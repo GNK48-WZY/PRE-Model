@@ -1,15 +1,17 @@
 
 %y0 = [0,0,0,0,0,0,0,0,0];  % 9d model %
-num_vectors = 10000; %should be large enough
+num_vectors = 10; %should be large enough
 Re_R = [200, 300, 400, 500, 600, 700, 800, 900, 1000, 1500, 2000];  
 min_distances = zeros(size(Re_R));
 laminar_state=[1,0,0,0,0,0,0,0,0];
-delta_list=logspace(-5,-1,100); %the last value of logspace means spacing should also be large enough
-parfor i = 1:length(Re_R)
+delta_list=logspace(-5,-1,128); %the last value of logspace means spacing should also be large enough
+delete(gcp('nocreate'));
+parpool(64); 
+for i = 1:length(Re_R)
     Re = Re_R(i);
-    distances = zeros(1, num_vectors);
     laminar_delta_ind=zeros(size(delta_list));
-    for delta_ind=1:length(delta_list)
+    parfor delta_ind=1:length(delta_list)
+        distances = zeros(1, num_vectors);
         delta=delta_list(delta_ind);
         for j = 1:num_vectors  
             perturbation=randn(1,9);
@@ -26,11 +28,14 @@ parfor i = 1:length(Re_R)
     min_distances(i) = max(laminar_delta_ind.*delta_list);
 end
     
+save('ODE45_9D_model.mat');
+
 loglog(Re_R, min_distances, '-o')
 xlabel('Re')
 ylabel('Minimum boundary distance')
 title('Minimum boundary distance vs Reynolds number')
 grid on
+saveas(gcf,'figure.fig');
 
 
 
