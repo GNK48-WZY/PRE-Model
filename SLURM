@@ -1,19 +1,19 @@
 #!/bin/bash
 #SBATCH -p general          # --partition, selecting a partition
 #SBATCH -C epyc128          # --constraint, want an Epyc 128-core node
-#SBATCH -c 126              # --cpus-per-task, 126 cores will be used per task
+#SBATCH -c 64             # --cpus-per-task, 126 cores will be used per task
 #SBATCH -n 1                # --ntasks, # tasks in this batch job
 #SBATCH -N 1                # --nnodes, all 126 cores to come from 1 node
 
 #SBATCH --partition=general                   # Name of partition
-#SBATCH --ntasks=48                           # Request 48 CPU cores
+#SBATCH --ntasks=64                           # Request 48 CPU cores
 #SBATCH --time=02:00:00                       # Job should run for up to 2 hours
 #SBATCH --mail-type=END                       # Event(s) that triggers email notification (BEGIN,END,FAIL,ALL)
-#SBATCH --mail-user=first.last@uconn.edu      # Destination email address
+#SBATCH --mail-user=zhengyang.wei@uconn.edu      # Destination email address
 
 module load matlab
 
-matlab -nodisplay -r "run('run_ode45_parallel.m'); exit;"
+matlab -nodisplay -r "run('ODE45_MOdule.m'); exit;"
 
 bash my_script.sh
 
