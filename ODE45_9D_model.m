@@ -5,6 +5,8 @@ Re_R = [200, 300, 400, 500, 600, 700, 800, 900, 1000, 1500, 2000];
 min_distances = zeros(size(Re_R));
 laminar_state=[1,0,0,0,0,0,0,0,0];
 delta_list=logspace(-5,-1,128); %the last value of logspace means spacing should also be large enough
+delete(gcp('nocreate'));
+parpool(64); 
 for i = 1:length(Re_R)
     Re = Re_R(i);
     laminar_delta_ind=zeros(size(delta_list));
