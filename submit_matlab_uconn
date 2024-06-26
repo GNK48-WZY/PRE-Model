@@ -1,0 +1,21 @@
+#!/bin/bash -l
+#SBATCH --job-name=matlab
+#SBATCH --time=01:00:00
+#SBATCH --partition=general 
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=64
+#SBATCH --output=matlab_history_%j
+
+#---------------------------------------------------------------------
+# SLURM job script to run serial MATLAB
+#---------------------------------------------------------------------
+
+SUBMITDIR=$SLURM_SUBMIT_DIR
+WORKDIR=/scratch/chl23026/chl23026/matlab_$SLURM_JOB_ID
+mkdir -p "$WORKDIR" && cp -r *.m "$WORKDIR" && cp submit_* "$WORKDIR" && cd "$WORKDIR" || exit -1
+
+module load matlab/R2022b
+
+matlab -nodisplay -nosplash -nodesktop -r "ODE45_9D_model"
+
+echo "matlab exit code: $?"
