@@ -1,15 +1,17 @@
 
 %y0 = [0,0,0,0,0,0,0,0,0];  % 9d model %
-num_vectors = 10000; %should be large enough
+num_vectors = 10; %should be large enough
 Re_R = [200, 300, 400, 500, 600, 700, 800, 900, 1000, 1500, 2000];  
 min_distances = zeros(size(Re_R));
 laminar_state=[1,0,0,0,0,0,0,0,0];
-delta_list=logspace(-5,-1,100); %the last value of logspace means spacing should also be large enough
-parfor i = 1:length(Re_R)
+delta_list=logspace(-5,-1,128); %the last value of logspace means spacing should also be large enough
+delete(gcp('nocreate'));
+parpool(64); 
+for i = 1:length(Re_R)
     Re = Re_R(i);
-    distances = zeros(1, num_vectors);
     laminar_delta_ind=zeros(size(delta_list));
-    for delta_ind=1:length(delta_list)
+    parfor delta_ind=1:length(delta_list)
+        distances = zeros(1, num_vectors);
         delta=delta_list(delta_ind);
         for j = 1:num_vectors  
             perturbation=randn(1,9);
@@ -26,15 +28,13 @@ parfor i = 1:length(Re_R)
     min_distances(i) = max(laminar_delta_ind.*delta_list);
 end
     
+save('ODE45_9D_model.mat');
 loglog(Re_R, min_distances, '-o')
 xlabel('Re')
 ylabel('Minimum boundary distance')
 title('Minimum boundary distance vs Reynolds number')
 grid on
-
-
-
-
+saveas(gcf,'figure.fig');
 function adot = dynamics(~,a,Re) 
  Lx = 1.75*pi;
  Lz = 1.2*pi;
@@ -52,7 +52,6 @@ function adot = dynamics(~,a,Re)
  adot(3) = -(Beta^2+Gamma^2)*a(3)/Re + 2*alpha*Beta*Gamma*(a(4)*a(7)+a(5)*a(6))/(sqrt(6)*KAG*KBG) + (Beta^2*(3*alpha^2 + Gamma^2) - 3*Gamma^2*(alpha^2 + Gamma^2))*a(4)*a(8)/(sqrt(6)*KAG*KBG*KABG);
  adot(4) = -(3*alpha^2+4*Beta^2)*a(4)/(3*Re) - alpha*a(1)*a(5)/sqrt(6) - 10*alpha^2*a(2)*a(6)/(3*sqrt(6)*KAG)  ...
            - sqrt(3/2)*alpha*Beta*Gamma*a(3)*a(7)/KAG*KBG - sqrt(3/2)*alpha^2*Beta^2*a(3)*a(8)/KAG*KBG*KABG - alpha*a(5)*a(9)/sqrt(6);
-
  adot(5) = -(alpha^2+Beta^2)*a(5)/Re + alpha*a(1)*a(4)/sqrt(6) + alpha^2*a(2)*a(7)/(sqrt(6)*KAG) - alpha*Beta*Gamma*a(2)*a(8)/(sqrt(6)*KAG*KABG) + alpha*a(4)*a(9)/sqrt(6) + 2*alpha*Beta*Gamma*a(3)*a(6)/(sqrt(6)*KAG*KBG);
  
  adot(6) = -(3*alpha^2+4*Beta^2+3*Gamma^2)*a(6)/(3*Re) + alpha*a(1)*a(7)/sqrt(6) + sqrt(3/2)*Beta*Gamma*a(1)*a(8)/KABG  ...
@@ -61,15 +60,11 @@ function adot = dynamics(~,a,Re)
  adot(7) = -(alpha^2+Beta^2+Gamma^2)*a(7)/Re - alpha*(a(1)*a(6)+ a(6)*a(9))/sqrt(6) + (Gamma^2- alpha^2)*a(2)*a(5)/(sqrt(6)*KAG) + alpha*Beta*Gamma*a(3)*a(4)/(sqrt(6)*KAG*KBG);
  
  adot(8) = -(alpha^2+Beta^2+Gamma^2)*a(8)/Re + 2*alpha*Beta*Gamma*a(2)*a(5)/(sqrt(6)*KAG*KABG) + Gamma^2*(3*alpha^2-Beta^2+3*Gamma^2)*a(3)*a(4)/(sqrt(6)*KAG*KBG*KABG);
-
  adot(9) = -9*Beta^2*a(9)/Re +sqrt(3/2)*Beta*Gamma*a(2)*a(3)/KBG -sqrt(3/2)*Beta*Gamma*a(6)*a(8)/KABG;
  
 end
-
-
 function d = compute_distance(a)
     laminar_state=[1,0,0,0,0,0,0,0,0];
-
     for i=1:20
         d_last(1) = norm(a(end-i+1, :)-laminar_state); 
     end
