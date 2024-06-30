@@ -1,6 +1,6 @@
 
 %y0 = [0,0,0,0,0,0,0,0,0];  % 9d model %
-num_vectors = 10; %should be large enough
+num_vectors = 10000; %should be large enough
 Re_R = [200, 300, 400, 500, 600, 700, 800, 900, 1000, 1500, 2000];  
 min_distances = zeros(size(Re_R));
 laminar_state=[1,0,0,0,0,0,0,0,0];
