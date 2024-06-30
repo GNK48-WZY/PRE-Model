@@ -1,19 +1,21 @@
-#!/bin/bash
-#SBATCH -p general          # --partition, selecting a partition
-#SBATCH -C epyc128          # --constraint, want an Epyc 128-core node
-#SBATCH -c 64             # --cpus-per-task, 126 cores will be used per task
-#SBATCH -n 1                # --ntasks, # tasks in this batch job
-#SBATCH -N 1                # --nnodes, all 126 cores to come from 1 node
+#!/bin/bash -l
+#SBATCH --job-name=matlab
+#SBATCH --time=01:00:00
+#SBATCH --partition=general 
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=64
+#SBATCH --output=PRE-Model
 
-#SBATCH --partition=general                   # Name of partition
-#SBATCH --ntasks=64                           # Request 48 CPU cores
-#SBATCH --time=02:00:00                       # Job should run for up to 2 hours
-#SBATCH --mail-type=END                       # Event(s) that triggers email notification (BEGIN,END,FAIL,ALL)
-#SBATCH --mail-user=zhengyang.wei@uconn.edu      # Destination email address
+#---------------------------------------------------------------------
+# SLURM job script to run serial MATLAB
+#---------------------------------------------------------------------
 
-module load matlab
+SUBMITDIR=$SLURM_SUBMIT_DIR
+WORKDIR=/scratch/zhw22003/zhw22003/matlab_$SLURM_JOB_ID
+mkdir -p "$WORKDIR" && cp -r *.m "$WORKDIR" && cp submit_* "$WORKDIR" && cd "$WORKDIR" || exit -1
 
-matlab -nodisplay -r "run('ODE45_9D_model.m'); exit;"
+module load matlab/R2022b
 
-bash my_script.sh
+matlab -nodisplay -nosplash -nodesktop -r "ODE45_9D_model"
 
+echo "matlab exit code: $?"
