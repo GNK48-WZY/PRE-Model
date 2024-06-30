@@ -1,7 +1,14 @@
 #!/bin/bash -l
 #SBATCH --job-name=matlab
 #SBATCH --time=01:00:00
-#SBATCH --partition=general 
+###SBATCH --partition=general 
+###SBATCH --partition=lo-core # This can be as long as 7 days
+#SBATCH --partition=priority # This can run infinite time with priority in queue
+#SBATCH --account=chl23026
+#SBATCH --qos=chl23026
+#SBATCH --constraint=epyc128 # This is optional
+###SBATCH --mem=16G
+###SBATCH --no-requeue
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=64
 #SBATCH --output=matlab_history_%j
